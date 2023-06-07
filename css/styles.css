@@ -1,0 +1,12 @@
+@media print {
+    .topicsContainer {
+        display: none !important;
+    }
+    .topics{
+        width: 100% !important;
+    }
+}
+
+body {
+  font-size: 16px;
+}

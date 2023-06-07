@@ -1,0 +1,150 @@
+---
+title: "Weekly exercise 4"
+output: 
+  learnr::tutorial:
+    theme: "sandstone"
+    css: css/styles.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library("learnr")
+library(ggplot2)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Question 4 a)
+
+The following code draws a black circle with radius $1$ and a red circle with radius $1/2$, both centred at the coordinate $(0,0)$. 
+
+```{r echo=TRUE}
+library(ggplot2)
+circles <- ggplot() +
+  theme_void() +
+  geom_function(fun = function(x) sqrt(1 - x^2), xlim = c(-1, 1)) +
+  geom_function(fun = function(x) -sqrt(1 - x^2), xlim = c(-1, 1)) +
+  geom_function(fun = function(x) sqrt(1/4 - x^2), xlim = c(-.5, .5),
+                color = "red") +
+  geom_function(fun = function(x) -sqrt(1/4 - x^2), xlim = c(-.5, .5),
+                color = "red") +
+  annotate("point", x = 0, y = 0) +
+  coord_equal()
+```
+
+
+Recall $(X,Y)$ and $(X_2,Y_2)$ from Question 2. Below are 1,000 simulated points from  $(X,Y)$. 
+
+```{r echo=FALSE}
+set.seed(237)
+N <- 1000
+r <- sqrt(runif(N))
+theta <- runif(N, max = 2 * pi) 
+circles +
+  geom_point(aes(x = r * cos(theta), y = r * sin(theta)),
+             alpha = .7)
+```
+
+
+Using the 1,000 points, the estimated probability of landing inside the red circle is `r round(sum(r < .5) / N, 3)`.
+
+Simulate 1,000 points from $(X_2, Y_2)$ and estimate the probability that it lands inside the red circle. The plot object `circles` is available in the following exercise code chunk.
+
+```{r q5a-setup}
+library(ggplot2)
+circles <- ggplot() +
+  theme_void() +
+  geom_function(fun = function(x) sqrt(1 - x^2), xlim = c(-1, 1)) +
+  geom_function(fun = function(x) -sqrt(1 - x^2), xlim = c(-1, 1)) +
+  geom_function(fun = function(x) sqrt(1/4 - x^2), xlim = c(-.5, .5),
+                color = "red") +
+  geom_function(fun = function(x) -sqrt(1/4 - x^2), xlim = c(-.5, .5),
+                color = "red") +
+  annotate("point", x = 0, y = 0) +
+  coord_equal()
+```
+
+```{r q5a, exercise=TRUE, exercise.lines=15, fig.aps=1}
+N <- 1000
+circles
+```
+
+
+```{r}
+shiny::textInput(
+  "q4a", "What is the estimated probability?", width = "100%")
+```
+
+
+## Question 4 b)
+
+The following code creates a data frame representing
+a deck of playing cards. The data frame is named `deck` and is available in the exercise code chunk.
+
+```{r echo=TRUE}
+suits <- c("Spades", "Hearts", "Clubs", "Diamonds")
+numbers <- c("A", 2:10, "J", "Q", "K")
+values <- c(11, 2:10, 10, 10, 10)
+deck <- data.frame(
+  suit = rep(suits, each = 13),
+  number = rep(numbers, 4),
+  value = rep(values, 4)
+)
+```
+
+```{r q4b-setup}
+suits <- c("Spades", "Hearts", "Clubs", "Diamonds")
+numbers <- c("A", 2:10, "J", "Q", "K")
+values <- c(11, 2:10, 10, 10, 10)
+deck <- data.frame(
+  suit = rep(suits, each = 13),
+  number = rep(numbers, 4),
+  value = rep(values, 4)
+)
+```
+
+Generate 1,000 simulates of the following game played by one person.
+
+_Game step:_
+
+i. From a randomly shuffled single deck, you draw 2 cards without replacement.
+ii. Sum the values of the cards based on the counting rule described below. If the count is less than $17$ go to step iii. Otherwise, __end the game__.
+iii. Draw an extra card from the remaining deck. 
+
+  
+_Counting rule:_
+
++ Counts are based on the `number`s.
++ Values between `2` and `10` are always counted as is.
++ Consider the face cards where the `number` is `J`, `Q`, or `K` as $10$.
++ Consider `A` as $11$ if the resulting total is less than $22$. Otherwise, consider `A` as $1$.
++ The "default" values are stored in `value` column of the data frame `deck`. `A` stored as $11$.
+
+Let $S$ be the sum of the values you have on your hands at the end of the game. Draw a histogram of the simulated values of $S$ with `binwidth = 1` and estimate $P(S>21)$, $E[S]$, and $\text{Var}(S)$.
+
+
+```{r q4b, exercise=TRUE, exercise.line=20}
+N <- 1000
+S <- numeric(N)
+for (i in seq_len(N)) {
+  
+}
+deck
+```
+
+```{r}
+shiny::textInput(
+  "q4b1", "What is the estimated probability?", width = "100%")
+```
+
+```{r}
+shiny::textInput(
+  "q4b2", "What is the estimated expectation?", width = "100%")
+```
+
+```{r}
+shiny::textInput(
+  "q4c", "What is the estimated variance?", width = "100%")
+```
+
+
