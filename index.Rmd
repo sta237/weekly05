@@ -1,5 +1,5 @@
 ---
-title: "Weekly exercise 4"
+title: "Weekly exercise 5"
 output: 
   learnr::tutorial:
     theme: "sandstone"
@@ -14,74 +14,42 @@ library(ggplot2)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Question 4 a)
+## Question 5 a)
 
-The following code draws a black circle with radius $1$ and a red circle with radius $1/2$, both centred at the coordinate $(0,0)$. 
+Consider the estimator $T_n$ for $A$ identified in Question 4 c).
 
-```{r echo=TRUE}
-library(ggplot2)
-circles <- ggplot() +
-  theme_void() +
-  geom_function(fun = function(x) sqrt(1 - x^2), xlim = c(-1, 1)) +
-  geom_function(fun = function(x) -sqrt(1 - x^2), xlim = c(-1, 1)) +
-  geom_function(fun = function(x) sqrt(1/4 - x^2), xlim = c(-.5, .5),
-                color = "red") +
-  geom_function(fun = function(x) -sqrt(1/4 - x^2), xlim = c(-.5, .5),
-                color = "red") +
-  annotate("point", x = 0, y = 0) +
-  coord_equal()
+i. Simulate $m=100$ copies of $T_n$ with $n=10\ 000$. 
+ii. Estimate $P\left(\lvert T_n-A \rvert>0.5\right)$ using the simulated copies and compare the estimate to the upper bound based on Chebyshev's inequality.
+iii. Plot a histogram of the simulated values with `binwidth = .25` and `fill = abs(sims - A) > .5` inside `aes()` to highlight the simulated values that are more than $0.5$ away from the true value of $A$.
+
+```{r q5a, exercise=TRUE, exercise.lines= 25}
+A <- {{  }}
+N <- 10000
+m <- 100
+sims <- {{ }} * {{ }}(N ,1/10)
+{{ }}(sims) / N
 ```
-
-
-Recall $(X,Y)$ and $(X_2,Y_2)$ from Question 2. Below are 1,000 simulated points from  $(X,Y)$. 
-
-```{r echo=FALSE}
-set.seed(237)
-N <- 1000
-r <- sqrt(runif(N))
-theta <- runif(N, max = 2 * pi) 
-circles +
-  geom_point(aes(x = r * cos(theta), y = r * sin(theta)),
-             alpha = .7)
-```
-
-
-Using the 1,000 points, the estimated probability of landing inside the red circle is `r round(sum(r < .5) / N, 3)`.
-
-Simulate 1,000 points from $(X_2, Y_2)$ and estimate the probability that it lands inside the red circle. The plot object `circles` is available in the following exercise code chunk.
-
-```{r q5a-setup}
-library(ggplot2)
-circles <- ggplot() +
-  theme_void() +
-  geom_function(fun = function(x) sqrt(1 - x^2), xlim = c(-1, 1)) +
-  geom_function(fun = function(x) -sqrt(1 - x^2), xlim = c(-1, 1)) +
-  geom_function(fun = function(x) sqrt(1/4 - x^2), xlim = c(-.5, .5),
-                color = "red") +
-  geom_function(fun = function(x) -sqrt(1/4 - x^2), xlim = c(-.5, .5),
-                color = "red") +
-  annotate("point", x = 0, y = 0) +
-  coord_equal()
-```
-
-```{r q5a, exercise=TRUE, exercise.lines=15, fig.aps=1}
-N <- 1000
-circles
-```
-
 
 ```{r}
-shiny::textInput(
-  "q4a", "What is the estimated probability?", width = "100%")
+shiny::textAreaInput(
+  "q5a", "What is the estimated probability of the estimator being more than 0.5 away from the true value? Compare it to the upper bound basaed on Chebyshev's inequality.", width = "100%", height = "150px")
 ```
 
 
-## Question 4 b)
+## Question 5 b)
 
-The following code creates a data frame representing
-a deck of playing cards. The data frame is named `deck` and is available in the exercise code chunk.
+The following code creates a data frame representing a deck of playing cards
+and a set of functions you can use for coding a game of Blackjack.
 
-```{r echo=TRUE}
++ `deck` contains a data frame of 52 playing cards.
++ `score_blackjack()` returns of the current hand. It requires a subset of 
+the `deck` as its input argument to represent the current hand.
++ `dealer()` returns `TRUE` when the dealer needs to draw one more card
+based on the current hand. It requires a subset of the `deck` as its input
+argument to represen the current hand.
+
+
+```{r echo=TRUE, eval=FALSE}
 suits <- c("Spades", "Hearts", "Clubs", "Diamonds")
 numbers <- c("A", 2:10, "J", "Q", "K")
 values <- c(11, 2:10, 10, 10, 10)
@@ -90,61 +58,109 @@ deck <- data.frame(
   number = rep(numbers, 4),
   value = rep(values, 4)
 )
-```
-
-```{r q4b-setup}
-suits <- c("Spades", "Hearts", "Clubs", "Diamonds")
-numbers <- c("A", 2:10, "J", "Q", "K")
-values <- c(11, 2:10, 10, 10, 10)
-deck <- data.frame(
-  suit = rep(suits, each = 13),
-  number = rep(numbers, 4),
-  value = rep(values, 4)
-)
-```
-
-Generate 1,000 simulates of the following game played by one person.
-
-_Game step:_
-
-i. From a randomly shuffled single deck, you draw 2 cards without replacement.
-ii. Sum the values of the cards based on the counting rule described below. If the count is less than $17$ go to step iii. Otherwise, __end the game__.
-iii. Draw an extra card from the remaining deck. 
-
-  
-_Counting rule:_
-
-+ Counts are based on the `number`s.
-+ Values between `2` and `10` are always counted as is.
-+ Consider the face cards where the `number` is `J`, `Q`, or `K` as $10$.
-+ Consider `A` as $11$ if the resulting total is less than $22$. Otherwise, consider `A` as $1$.
-+ The "default" values are stored in `value` column of the data frame `deck`. `A` stored as $11$.
-
-Let $S$ be the sum of the values you have on your hands at the end of the game. Draw a histogram of the simulated values of $S$ with `binwidth = 1` and estimate $P(S>21)$, $E[S]$, and $\text{Var}(S)$.
-
-
-```{r q4b, exercise=TRUE, exercise.line=20}
-N <- 1000
-S <- numeric(N)
-for (i in seq_len(N)) {
-  
+score_blackjack <- function(cards) {
+  s <- sum(cards$value)
+  n_aces <- sum(cards$value == 11)
+  s <- s - 10 * min(ceiling(max(0, (s - 21) / 10)), n_aces)
+  return(s)
 }
-deck
+dealer <- function(cards) {
+  decision <- score_blackjack(cards) < 17
+  return(decision)
+}
+winner <- function(player_score, dealer_score) {
+  player_won <- TRUE
+  if (dealer_score < 22 && dealer_score > player_score) {
+    player_won <- FALSE
+  }
+  if (player_score > 21) {
+    player_won <- FALSE
+  }
+  return(player_won)
+}
 ```
+
+Simulate $1,000$ iterations of **2** consecutive rounds of a game with a single player
+against the dealer using a single deck. For the player, implement one of the
+following strategies:
+
+1. Develop your own strategy that takes the player's current and the dealer's first card as inputs. Remember that the player is blind to the dealer's second card until the player finalizes their hands.
+2. Take one more card if the player's current score is less than $17$ AND the dealer's first card is greater than $7$.
+
+Define $X_1$ and $X_2$ such that $X_i=1$ when the player wins $i$th round and $0$ otherwise. Estimate $E[X_1]$, $E[X_2]$, and $E[X_1X_2]$. Is it a reasonable conclusion that $X_1$ and $X_2$ are independent? Justify your answer using the estimates and the implemented strategy.
+
+
+```{r q5b-setup}
+suits <- c("Spades", "Hearts", "Clubs", "Diamonds")
+numbers <- c("A", 2:10, "J", "Q", "K")
+values <- c(11, 2:10, 10, 10, 10)
+deck <- data.frame(
+  suit = rep(suits, each = 13),
+  number = rep(numbers, 4),
+  value = rep(values, 4)
+)
+score_blackjack <- function(cards) {
+  s <- sum(cards$value)
+  n_aces <- sum(cards$value == 11)
+  s <- s - 10 * min(ceiling(max(0, (s - 21) / 10)), n_aces)
+  return(s)
+}
+dealer <- function(cards) {
+  decision <- score_blackjack(cards) < 17
+  return(decision)
+}
+winner <- function(player_score, dealer_score) {
+  player_won <- TRUE
+  if (dealer_score < 22 && dealer_score > player_score) {
+    player_won <- FALSE
+  }
+  if (player_score > 21) {
+    player_won <- FALSE
+  }
+  return(player_won)
+}
+```
+
+```{r q5b, exercise=TRUE, exercise.lines=50}
+N <- 1000
+X1 <- numeric(N)
+X2 <- numeric(N)
+player <- function(player_cards, dealer_card) {
+  # implement your own strategy
+  return(decision)
+}
+play_a_round <- function(shuffled, position = 1) {
+  # takes shuffled deck and the current position
+  # of the top of the undealt deck as input arguments
+  # deal first pairs
+  # feel free to modify the function as needed
+  player_hand <- c(position, position + 1)
+  dealer_hand <- c(position + 2:3)
+  position <- position + 4
+  while (player(shuffled[player_hand, ], shuffled[dealer_hand[1], ])) {
+    player_hand <- c(player_hand, position)
+    position <- position + 1
+  }
+  player_score <- score_blackjack(shuffled[player_hand, ])
+  if (player_score == 21) {
+    return(c(TRUE, position)) # player wins immediately
+  }
+  if (player_score > 21) {
+    return(c(FALSE, position)) # player loses immediately
+  }
+  while (dealer(shuffled[dealer_hand, ])) {
+    dealer_hand <- c(dealer_hand, position)
+    position <- position + 1
+  }
+  dealer_score <- score_blackjack(shuffled[dealer_hand, ])
+  # return c(winner, current position)
+  return(c(winner(player_score, dealer_score), position))
+}
+
+```
+
 
 ```{r}
-shiny::textInput(
-  "q4b1", "What is the estimated probability?", width = "100%")
+shiny::textAreaInput(
+  "q5b", "Is it a reasonable conclusion that the two random variables are independent? Justify your answer using the estimates and the implemented strategy.", width = "100%", height = "150px")
 ```
-
-```{r}
-shiny::textInput(
-  "q4b2", "What is the estimated expectation?", width = "100%")
-```
-
-```{r}
-shiny::textInput(
-  "q4c", "What is the estimated variance?", width = "100%")
-```
-
-
